@@ -2,6 +2,10 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+const accountSid = 'AC25d08bb183858773afa9775933db9176';
+const authToken = '3d494383caea19af8f1284538f978b26';
+const client = require('twilio')(accountSid, authToken);
+
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
@@ -14,10 +18,20 @@ io.on('connection', function(socket) {
   });
 });
 
+
+
 // User sends message
 io.on('connection', function(socket) {
   socket.on('chat message', function(msg) {
     io.emit('chat message', msg);
+    client.messages
+      .create({
+        body: msg,
+        from: '+12406182493',
+        to: '+12023521818'
+      })
+      .then(message => console.log(message.sid))
+      .done();
     console.log('message: ' + msg);
   });
 });
